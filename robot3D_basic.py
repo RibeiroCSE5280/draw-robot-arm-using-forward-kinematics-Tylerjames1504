@@ -105,6 +105,7 @@ def forward_kinematics(
 
     # Set the limits of the graph x, y, and z ranges
     axes = Axes(xrange=(0, 20), yrange=(-2, 10), zrange=(0, 6))
+    r = 0.4
 
     # Matrix of Frame 1 (written w.r.t. Frame 0, which is the previous frame)
     R_01 = RotationMatrix(Phi[0], axis_name="z")  # Rotation matrix
@@ -118,12 +119,11 @@ def forward_kinematics(
 
     # Now, let's create a cylinder and add it to the local coordinate frame
     link1_mesh = Cylinder(
-        r=0.4, height=L1, pos=(L1 / 2, 0, 0), c="yellow", alpha=0.8, axis=(1, 0, 0)
+        r=0.4, height=L1, pos=(L1 / 2 + r, 0, 0), c="yellow", alpha=0.8, axis=(1, 0, 0)
     )
 
     # Also create a sphere to show as an example of a joint
-    r = 0.4
-    sphere1 = Sphere(r=r).pos(-r, 0, 0).color("gray").alpha(0.8)
+    sphere1 = Sphere(r=r).pos(0, 0, 0).color("gray").alpha(0.8)
 
     # Combine all parts into a single object
     Frame1 = Frame1Arrows + link1_mesh + sphere1
@@ -133,7 +133,9 @@ def forward_kinematics(
 
     # Matrix of Frame 2 (written w.r.t. Frame 1, which is the previous frame)
     R_12 = RotationMatrix(Phi[1], axis_name="z")  # Rotation matrix
-    p2 = np.array([[L1 + r], [0.0], [0.0]])  # Frame's origin (w.r.t. previous frame)
+    p2 = np.array(
+        [[L1 + r + r], [0.0], [0.0]]
+    )  # Frame's origin (w.r.t. previous frame)
     t_12 = p2  # Translation vector
 
     # Matrix of Frame 2 w.r.t. Frame 1
@@ -204,7 +206,7 @@ def forward_kinematics(
     # Transform the part to position it at its correct location and orientation
     Frame4.apply_transform(T_04)
 
-    e = T_04[:, -1]
+    e = T_04[:-1, -1]
 
     # Show everything
     show([Frame1, Frame2, Frame3, Frame4], axes, viewup="z").close()
@@ -228,7 +230,9 @@ def main():
 
     Phi = np.array([phi1, phi2, phi3, phi4])
 
-    forward_kinematics(Phi, L1, L2, L3, L4)
+    T_01, T_02, T_03, T_04, e = forward_kinematics(Phi, L1, L2, L3, L4)
+    print(f"{T_04=}")  # , {T_02=}, {T_03=}, {T_04=}, {e=}"
+    print(f"{e=}")
 
 
 if __name__ == "__main__":
