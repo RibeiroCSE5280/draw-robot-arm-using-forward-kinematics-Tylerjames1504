@@ -209,7 +209,7 @@ def forward_kinematics(
     e = T_04[:-1, -1]
 
     # Show everything
-    show([Frame1, Frame2, Frame3, Frame4], axes, viewup="z").close()
+    # show([Frame1, Frame2, Frame3, Frame4], axes, viewup="z").close()
 
     return T_01, T_02, T_03, T_04, e
 
